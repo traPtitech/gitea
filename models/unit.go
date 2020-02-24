@@ -75,7 +75,6 @@ var (
 		UnitTypeIssues,
 		UnitTypePullRequests,
 		UnitTypeReleases,
-		UnitTypeWiki,
 	}
 
 	// MustRepoUnits contains the units could not be disabled currently
