@@ -240,11 +240,8 @@ func RegisterRoutes(m *web.Route) {
 		m.Post("/avatar", bindIgnErr(auth.AvatarForm{}), userSetting.AvatarPost)
 		m.Post("/avatar/delete", userSetting.DeleteAvatar)
 		m.Group("/account", func() {
-			m.Combo("").Get(userSetting.Account).Post(bindIgnErr(forms.ChangePasswordForm{}), userSetting.AccountPost)
-			m.Post("/email", bindIgnErr(forms.AddEmailForm{}), userSetting.EmailPost)
-			m.Post("/email/delete", userSetting.DeleteEmail)
-			m.Post("/delete", userSetting.DeleteAccount)
-			m.Post("/theme", bindIgnErr(forms.UpdateThemeForm{}), userSetting.UpdateUIThemePost)
+			m.Get("", userSetting.Account)
+			m.Post("/theme", bindIgnErr(auth.UpdateThemeForm{}), userSetting.UpdateUIThemePost)
 		})
 		m.Group("/applications/oauth2", func() {
 			m.Get("/{id}", userSetting.OAuth2ApplicationShow)
