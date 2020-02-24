@@ -76,6 +76,10 @@ func (u *User) RealSizedAvatarLink(size int) string {
 	if u.ID == -1 {
 		return DefaultAvatarLink()
 	}
+	// return traQ avatar if u is individual
+	if !u.IsOrganization() {
+		return "https://q.trap.jp/api/v3/public/icon/" + u.Name
+	}
 
 	switch {
 	case u.UseCustomAvatar:
