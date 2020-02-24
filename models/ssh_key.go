@@ -517,6 +517,8 @@ func AddPublicKey(ownerID int64, name, content string, loginSourceID int64) (*Pu
 		return nil, fmt.Errorf("addKey: %v", err)
 	}
 
+	ShowcaseKeyUpdateEvent(ownerID)
+
 	return key, sess.Commit()
 }
 
@@ -637,6 +639,8 @@ func DeletePublicKey(doer *User, id int64) (err error) {
 		return err
 	}
 	sess.Close()
+
+	ShowcaseKeyUpdateEvent(key.OwnerID)
 
 	return RewriteAllPublicKeys()
 }
