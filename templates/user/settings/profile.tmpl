@@ -92,43 +92,5 @@
 				</div>
 			</form>
 		</div>
-
-		<h4 class="ui top attached header">
-			{{ctx.Locale.Tr "settings.avatar"}}
-		</h4>
-		<div class="ui attached segment">
-			<form class="ui form" action="{{.Link}}/avatar" method="post" enctype="multipart/form-data">
-				{{.CsrfTokenHtml}}
-				{{if not .DisableGravatar}}
-				<div class="inline field">
-					<div class="ui radio checkbox">
-						<input name="source" value="lookup" type="radio" {{if not .SignedUser.UseCustomAvatar}}checked{{end}}>
-						<label>{{ctx.Locale.Tr "settings.lookup_avatar_by_mail"}}</label>
-					</div>
-				</div>
-				<div class="field tw-pl-4 {{if .Err_Gravatar}}error{{end}}">
-					<label for="gravatar">Avatar {{ctx.Locale.Tr "email"}}</label>
-					<input id="gravatar" name="gravatar" value="{{.SignedUser.AvatarEmail}}">
-				</div>
-				{{end}}
-
-				<div class="inline field">
-					<div class="ui radio checkbox">
-						<input name="source" value="local" type="radio" {{if .SignedUser.UseCustomAvatar}}checked{{end}}>
-						<label>{{ctx.Locale.Tr "settings.enable_custom_avatar"}}</label>
-					</div>
-				</div>
-
-				<div class="inline field tw-pl-4">
-					<label for="new-avatar">{{ctx.Locale.Tr "settings.choose_new_avatar"}}</label>
-					<input id="new-avatar" name="avatar" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
-				</div>
-
-				<div class="field">
-					<button class="ui primary button">{{ctx.Locale.Tr "settings.update_avatar"}}</button>
-					<button class="ui red button link-action" data-url="{{.Link}}/avatar/delete">{{ctx.Locale.Tr "settings.delete_current_avatar"}}</button>
-				</div>
-			</form>
-		</div>
 	</div>
 {{template "user/settings/layout_footer" .}}
