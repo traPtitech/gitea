@@ -246,26 +246,6 @@ func RegisterRoutes(m *web.Route) {
 			m.Post("/delete", userSetting.DeleteAccount)
 			m.Post("/theme", bindIgnErr(forms.UpdateThemeForm{}), userSetting.UpdateUIThemePost)
 		})
-		m.Group("/security", func() {
-			m.Get("", userSetting.Security)
-			m.Group("/two_factor", func() {
-				m.Post("/regenerate_scratch", userSetting.RegenerateScratchTwoFactor)
-				m.Post("/disable", userSetting.DisableTwoFactor)
-				m.Get("/enroll", userSetting.EnrollTwoFactor)
-				m.Post("/enroll", bindIgnErr(forms.TwoFactorAuthForm{}), userSetting.EnrollTwoFactorPost)
-			})
-			m.Group("/u2f", func() {
-				m.Post("/request_register", bindIgnErr(forms.U2FRegistrationForm{}), userSetting.U2FRegister)
-				m.Post("/register", bindIgnErr(u2f.RegisterResponse{}), userSetting.U2FRegisterPost)
-				m.Post("/delete", bindIgnErr(forms.U2FDeleteForm{}), userSetting.U2FDelete)
-			})
-			m.Group("/openid", func() {
-				m.Post("", bindIgnErr(forms.AddOpenIDForm{}), userSetting.OpenIDPost)
-				m.Post("/delete", userSetting.DeleteOpenID)
-				m.Post("/toggle_visibility", userSetting.ToggleOpenIDVisibility)
-			}, openIDSignInEnabled)
-			m.Post("/account_link", userSetting.DeleteAccountLink)
-		})
 		m.Group("/applications/oauth2", func() {
 			m.Get("/{id}", userSetting.OAuth2ApplicationShow)
 			m.Post("/{id}", bindIgnErr(forms.EditOAuth2ApplicationForm{}), userSetting.OAuthApplicationsEdit)
