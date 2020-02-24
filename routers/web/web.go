@@ -572,8 +572,6 @@ func registerWebRoutes(m *web.Router) {
 		m.Get("", user_setting.Profile)
 		m.Post("", web.Bind(forms.UpdateProfileForm{}), user_setting.ProfilePost)
 		m.Post("/update_preferences", user_setting.UpdatePreferences)
-		m.Get("/change_password", auth.MustChangePassword)
-		m.Post("/change_password", web.Bind(forms.MustChangePasswordForm{}), auth.MustChangePasswordPost)
 		m.Post("/avatar", web.Bind(forms.AvatarForm{}), user_setting.AvatarPost)
 		m.Post("/avatar/delete", user_setting.DeleteAvatar)
 		m.Group("/account", func() {
@@ -689,8 +687,6 @@ func registerWebRoutes(m *web.Router) {
 		m.Get("/avatar/{username}/{size}", user.AvatarByUsernameSize)
 		m.Get("/recover_account", auth.ResetPasswd)
 		m.Post("/recover_account", auth.ResetPasswdPost)
-		m.Get("/forgot_password", auth.ForgotPasswd)
-		m.Post("/forgot_password", auth.ForgotPasswdPost)
 		m.Post("/logout", auth.SignOut)
 		m.Get("/stopwatches", reqSignIn, user.GetStopwatches)
 		m.Get("/search_candidates", optExploreSignIn, user.SearchCandidates)
