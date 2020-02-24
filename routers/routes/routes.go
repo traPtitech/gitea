@@ -339,7 +339,6 @@ func RegisterRoutes(m *macaron.Macaron) {
 		m.Get("/email2user", user.Email2User)
 		m.Get("/recover_account", user.ResetPasswd)
 		m.Post("/recover_account", user.ResetPasswdPost)
-		m.Get("/logout", user.SignOut)
 	})
 	// ***** END: User *****
 
