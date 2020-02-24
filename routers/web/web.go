@@ -570,7 +570,6 @@ func registerRoutes(m *web.Route) {
 		m.Get("/avatar/{username}/{size}", user.AvatarByUserName)
 		m.Get("/recover_account", auth.ResetPasswd)
 		m.Post("/recover_account", auth.ResetPasswdPost)
-		m.Post("/logout", auth.SignOut)
 		m.Get("/task/{task}", reqSignIn, user.TaskStatus)
 		m.Get("/stopwatches", reqSignIn, user.GetStopwatches)
 		m.Get("/search", ignExploreSignIn, user.Search)
