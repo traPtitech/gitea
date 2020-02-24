@@ -398,6 +398,11 @@ func (u *User) RealSizedAvatarLink(size int) string {
 		return base.DefaultAvatarLink()
 	}
 
+	// return traQ avatar if u is individual
+	if !u.IsOrganization() {
+			return "https://q.trap.jp/api/1.0/public/icon/" + u.Name
+	}
+
 	switch {
 	case u.UseCustomAvatar:
 		if !com.IsFile(u.CustomAvatarPath()) {
