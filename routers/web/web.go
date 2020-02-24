@@ -260,43 +260,7 @@ func RegisterRoutes(m *web.Route) {
 
 	// ***** START: User *****
 	m.Group("/user", func() {
-		m.Get("/login", auth.SignIn)
-		m.Post("/login", bindIgnErr(forms.SignInForm{}), auth.SignInPost)
-		m.Group("", func() {
-			m.Combo("/login/openid").
-				Get(auth.SignInOpenID).
-				Post(bindIgnErr(forms.SignInOpenIDForm{}), auth.SignInOpenIDPost)
-		}, openIDSignInEnabled)
-		m.Group("/openid", func() {
-			m.Combo("/connect").
-				Get(auth.ConnectOpenID).
-				Post(bindIgnErr(forms.ConnectOpenIDForm{}), auth.ConnectOpenIDPost)
-			m.Group("/register", func() {
-				m.Combo("").
-					Get(auth.RegisterOpenID, openIDSignUpEnabled).
-					Post(bindIgnErr(forms.SignUpOpenIDForm{}), auth.RegisterOpenIDPost)
-			}, openIDSignUpEnabled)
-		}, openIDSignInEnabled)
-		m.Get("/sign_up", auth.SignUp)
-		m.Post("/sign_up", bindIgnErr(forms.RegisterForm{}), auth.SignUpPost)
-		m.Group("/oauth2", func() {
-			m.Get("/{provider}", auth.SignInOAuth)
-			m.Get("/{provider}/callback", auth.SignInOAuthCallback)
-		})
-		m.Get("/link_account", auth.LinkAccount)
-		m.Post("/link_account_signin", bindIgnErr(forms.SignInForm{}), auth.LinkAccountPostSignIn)
-		m.Post("/link_account_signup", bindIgnErr(forms.RegisterForm{}), auth.LinkAccountPostRegister)
-		m.Group("/two_factor", func() {
-			m.Get("", auth.TwoFactor)
-			m.Post("", bindIgnErr(forms.TwoFactorAuthForm{}), auth.TwoFactorPost)
-			m.Get("/scratch", auth.TwoFactorScratch)
-			m.Post("/scratch", bindIgnErr(forms.TwoFactorScratchAuthForm{}), auth.TwoFactorScratchPost)
-		})
-		m.Group("/webauthn", func() {
-			m.Get("", auth.WebAuthn)
-			m.Get("/assertion", auth.WebAuthnLoginAssertion)
-			m.Post("/assertion", auth.WebAuthnLoginAssertionPost)
-		})
+		m.Get("/login", user.TrapSignIn)
 	}, reqSignOut)
 
 	m.Any("/user/events", events.Events)
