@@ -258,6 +258,8 @@ func CommitRepoAction(optsList ...*CommitRepoActionOptions) error {
 		var isHookEventPush = true
 		switch opType {
 		case models.ActionCommitRepo: // Push
+			models.ShowcasePushEvent(repo.MustOwner().Name, repo.Name, refName)
+
 			if isNewBranch {
 				notification.NotifyCreateRef(pusher, repo, "branch", opts.RefFullName)
 			}
