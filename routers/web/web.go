@@ -557,8 +557,6 @@ func registerRoutes(m *web.Route) {
 	m.Group("/user/settings", func() {
 		m.Get("", user_setting.Profile)
 		m.Post("", web.Bind(forms.UpdateProfileForm{}), user_setting.ProfilePost)
-		m.Post("/avatar", web.Bind(forms.AvatarForm{}), user_setting.AvatarPost)
-		m.Post("/avatar/delete", user_setting.DeleteAvatar)
 		m.Group("/account", func() {
 			m.Combo("").Get(user_setting.Account).Post(web.Bind(forms.ChangePasswordForm{}), user_setting.AccountPost)
 			m.Post("/email", web.Bind(forms.AddEmailForm{}), user_setting.EmailPost)
