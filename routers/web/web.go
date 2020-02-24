@@ -39,7 +39,6 @@ import (
 	repo_setting "code.gitea.io/gitea/routers/web/repo/setting"
 	"code.gitea.io/gitea/routers/web/user"
 	user_setting "code.gitea.io/gitea/routers/web/user/setting"
-	"code.gitea.io/gitea/routers/web/user/setting/security"
 	auth_service "code.gitea.io/gitea/services/auth"
 	context_service "code.gitea.io/gitea/services/context"
 	"code.gitea.io/gitea/services/forms"
@@ -280,7 +279,6 @@ var ignSignInAndCsrf = verifyAuthWithOptions(&common.VerifyOptions{DisableCSRF: 
 // registerRoutes register routes
 func registerRoutes(m *web.Route) {
 	reqSignIn := verifyAuthWithOptions(&common.VerifyOptions{SignInRequired: true})
-	reqSignOut := verifyAuthWithOptions(&common.VerifyOptions{SignOutRequired: true})
 	// TODO: rename them to "optSignIn", which means that the "sign-in" could be optional, depends on the VerifyOptions (RequireSignInView)
 	ignSignIn := verifyAuthWithOptions(&common.VerifyOptions{SignInRequired: setting.Service.RequireSignInView})
 	ignExploreSignIn := verifyAuthWithOptions(&common.VerifyOptions{SignInRequired: setting.Service.RequireSignInView || setting.Service.Explore.RequireSigninView})
@@ -467,40 +465,6 @@ func registerRoutes(m *web.Route) {
 	// ***** START: User *****
 	// "user/login" doesn't need signOut, then logged-in users can still access this route for redirection purposes by "/user/login?redirec_to=..."
 	m.Get("/user/login", auth.TrapSignIn)
-	m.Group("/user", func() {
-		m.Post("/login", web.Bind(forms.SignInForm{}), auth.SignInPost)
-		m.Group("", func() {
-			m.Combo("/login/openid").
-				Get(auth.SignInOpenID).
-				Post(web.Bind(forms.SignInOpenIDForm{}), auth.SignInOpenIDPost)
-		}, openIDSignInEnabled)
-		m.Group("/openid", func() {
-			m.Combo("/connect").
-				Get(auth.ConnectOpenID).
-				Post(web.Bind(forms.ConnectOpenIDForm{}), auth.ConnectOpenIDPost)
-			m.Group("/register", func() {
-				m.Combo("").
-					Get(auth.RegisterOpenID, openIDSignUpEnabled).
-					Post(web.Bind(forms.SignUpOpenIDForm{}), auth.RegisterOpenIDPost)
-			}, openIDSignUpEnabled)
-		}, openIDSignInEnabled)
-		m.Get("/sign_up", auth.SignUp)
-		m.Post("/sign_up", web.Bind(forms.RegisterForm{}), auth.SignUpPost)
-		m.Get("/link_account", linkAccountEnabled, auth.LinkAccount)
-		m.Post("/link_account_signin", linkAccountEnabled, web.Bind(forms.SignInForm{}), auth.LinkAccountPostSignIn)
-		m.Post("/link_account_signup", linkAccountEnabled, web.Bind(forms.RegisterForm{}), auth.LinkAccountPostRegister)
-		m.Group("/two_factor", func() {
-			m.Get("", auth.TwoFactor)
-			m.Post("", web.Bind(forms.TwoFactorAuthForm{}), auth.TwoFactorPost)
-			m.Get("/scratch", auth.TwoFactorScratch)
-			m.Post("/scratch", web.Bind(forms.TwoFactorScratchAuthForm{}), auth.TwoFactorScratchPost)
-		})
-		m.Group("/webauthn", func() {
-			m.Get("", auth.WebAuthn)
-			m.Get("/assertion", auth.WebAuthnLoginAssertion)
-			m.Post("/assertion", auth.WebAuthnLoginAssertionPost)
-		})
-	}, reqSignOut)
 
 	m.Any("/user/events", routing.MarkLongPolling, events.Events)
 
@@ -533,26 +497,6 @@ func registerRoutes(m *web.Route) {
 			m.Post("/language", web.Bind(forms.UpdateLanguageForm{}), user_setting.UpdateUserLang)
 			m.Post("/hidden_comments", user_setting.UpdateUserHiddenComments)
 			m.Post("/theme", web.Bind(forms.UpdateThemeForm{}), user_setting.UpdateUIThemePost)
-		})
-		m.Group("/security", func() {
-			m.Get("", security.Security)
-			m.Group("/two_factor", func() {
-				m.Post("/regenerate_scratch", security.RegenerateScratchTwoFactor)
-				m.Post("/disable", security.DisableTwoFactor)
-				m.Get("/enroll", security.EnrollTwoFactor)
-				m.Post("/enroll", web.Bind(forms.TwoFactorAuthForm{}), security.EnrollTwoFactorPost)
-			})
-			m.Group("/webauthn", func() {
-				m.Post("/request_register", web.Bind(forms.WebauthnRegistrationForm{}), security.WebAuthnRegister)
-				m.Post("/register", security.WebauthnRegisterPost)
-				m.Post("/delete", web.Bind(forms.WebauthnDeleteForm{}), security.WebauthnDelete)
-			})
-			m.Group("/openid", func() {
-				m.Post("", web.Bind(forms.AddOpenIDForm{}), security.OpenIDPost)
-				m.Post("/delete", security.DeleteOpenID)
-				m.Post("/toggle_visibility", security.ToggleOpenIDVisibility)
-			}, openIDSignInEnabled)
-			m.Post("/account_link", linkAccountEnabled, security.DeleteAccountLink)
 		})
 		m.Group("/applications/oauth2", func() {
 			m.Get("/{id}", user_setting.OAuth2ApplicationShow)
