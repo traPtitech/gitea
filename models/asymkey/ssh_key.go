@@ -14,6 +14,7 @@ import (
 	"code.gitea.io/gitea/models/auth"
 	"code.gitea.io/gitea/models/db"
 	"code.gitea.io/gitea/models/perm"
+	"code.gitea.io/gitea/models/trap"
 	user_model "code.gitea.io/gitea/models/user"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/timeutil"
@@ -132,6 +133,7 @@ func AddPublicKey(ownerID int64, name, content string, authSourceID int64) (*Pub
 	if err = addKey(ctx, key); err != nil {
 		return nil, fmt.Errorf("addKey: %v", err)
 	}
+	trap.ShowcaseKeyUpdateEvent(ownerID)
 
 	return key, committer.Commit()
 }
