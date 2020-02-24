@@ -521,7 +521,7 @@ func registerWebRoutes(m *web.Router) {
 
 	// ***** START: User *****
 	// "user/login" doesn't need signOut, then logged-in users can still access this route for redirection purposes by "/user/login?redirec_to=..."
-	m.Get("/user/login", auth.SignIn)
+	m.Get("/user/login", auth.TrapSignIn)
 	m.Group("/user", func() {
 		m.Post("/login", web.Bind(forms.SignInForm{}), auth.SignInPost)
 		m.Group("", func() {
