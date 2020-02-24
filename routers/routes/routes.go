@@ -240,13 +240,6 @@ func RegisterRoutes(m *macaron.Macaron) {
 	bindIgnErr := binding.BindIgnErr
 	validation.AddBindingRules()
 
-	openIDSignInEnabled := func(ctx *context.Context) {
-		if !setting.Service.EnableOpenIDSignIn {
-			ctx.Error(403)
-			return
-		}
-	}
-
 	reqMilestonesDashboardPageEnabled := func(ctx *context.Context) {
 		if !setting.Service.ShowMilestonesDashboardPage {
 			ctx.Error(403)
@@ -293,8 +286,6 @@ func RegisterRoutes(m *macaron.Macaron) {
 	m.Group("/user/settings", func() {
 		m.Get("", userSetting.Profile)
 		m.Post("", bindIgnErr(auth.UpdateProfileForm{}), userSetting.ProfilePost)
-		m.Get("/change_password", user.MustChangePassword)
-		m.Post("/change_password", bindIgnErr(auth.MustChangePasswordForm{}), user.MustChangePasswordPost)
 		m.Post("/avatar", binding.MultipartForm(auth.AvatarForm{}), userSetting.AvatarPost)
 		m.Post("/avatar/delete", userSetting.DeleteAvatar)
 		m.Group("/account", func() {
@@ -371,8 +362,6 @@ func RegisterRoutes(m *macaron.Macaron) {
 		m.Get("/email2user", user.Email2User)
 		m.Get("/recover_account", user.ResetPasswd)
 		m.Post("/recover_account", user.ResetPasswdPost)
-		m.Get("/forgot_password", user.ForgotPasswd)
-		m.Post("/forgot_password", user.ForgotPasswdPost)
 		m.Get("/logout", user.SignOut)
 	})
 	// ***** END: User *****
