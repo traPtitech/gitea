@@ -187,20 +187,6 @@ func RegisterRoutes(m *web.Route) {
 	bindIgnErr := web.Bind
 	validation.AddBindingRules()
 
-	openIDSignInEnabled := func(ctx *context.Context) {
-		if !setting.Service.EnableOpenIDSignIn {
-			ctx.Error(http.StatusForbidden)
-			return
-		}
-	}
-
-	openIDSignUpEnabled := func(ctx *context.Context) {
-		if !setting.Service.EnableOpenIDSignUp {
-			ctx.Error(http.StatusForbidden)
-			return
-		}
-	}
-
 	reqMilestonesDashboardPageEnabled := func(ctx *context.Context) {
 		if !setting.Service.ShowMilestonesDashboardPage {
 			ctx.Error(http.StatusForbidden)
@@ -261,10 +247,8 @@ func RegisterRoutes(m *web.Route) {
 
 	m.Group("/user/settings", func() {
 		m.Get("", userSetting.Profile)
-		m.Post("", bindIgnErr(forms.UpdateProfileForm{}), userSetting.ProfilePost)
-		m.Get("/change_password", user.MustChangePassword)
-		m.Post("/change_password", bindIgnErr(forms.MustChangePasswordForm{}), user.MustChangePasswordPost)
-		m.Post("/avatar", bindIgnErr(forms.AvatarForm{}), userSetting.AvatarPost)
+		m.Post("", bindIgnErr(auth.UpdateProfileForm{}), userSetting.ProfilePost)
+		m.Post("/avatar", bindIgnErr(auth.AvatarForm{}), userSetting.AvatarPost)
 		m.Post("/avatar/delete", userSetting.DeleteAvatar)
 		m.Group("/account", func() {
 			m.Combo("").Get(userSetting.Account).Post(bindIgnErr(forms.ChangePasswordForm{}), userSetting.AccountPost)
@@ -324,8 +308,6 @@ func RegisterRoutes(m *web.Route) {
 		m.Get("/email2user", user.Email2User)
 		m.Get("/recover_account", user.ResetPasswd)
 		m.Post("/recover_account", user.ResetPasswdPost)
-		m.Get("/forgot_password", user.ForgotPasswd)
-		m.Post("/forgot_password", user.ForgotPasswdPost)
 		m.Post("/logout", user.SignOut)
 		m.Get("/task/{task}", user.TaskStatus)
 	})
