@@ -285,7 +285,6 @@ func RegisterRoutes(m *web.Route) {
 		m.Get("/email2user", user.Email2User)
 		m.Get("/recover_account", user.ResetPasswd)
 		m.Post("/recover_account", user.ResetPasswdPost)
-		m.Post("/logout", user.SignOut)
 		m.Get("/task/{task}", user.TaskStatus)
 	})
 	// ***** END: User *****
