@@ -332,8 +332,6 @@ func RegisterRoutes(m *web.Route) {
 	m.Group("/user/settings", func() {
 		m.Get("", user_setting.Profile)
 		m.Post("", bindIgnErr(forms.UpdateProfileForm{}), user_setting.ProfilePost)
-		m.Post("/avatar", bindIgnErr(forms.AvatarForm{}), user_setting.AvatarPost)
-		m.Post("/avatar/delete", user_setting.DeleteAvatar)
 		m.Group("/appearance", func() {
 			m.Get("", user_setting.Appearance)
 			m.Post("/language", bindIgnErr(forms.UpdateLanguageForm{}), user_setting.UpdateUserLang)
