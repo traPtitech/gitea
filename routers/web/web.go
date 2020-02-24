@@ -267,10 +267,7 @@ func RegisterRoutes(m *web.Route) {
 		m.Post("/avatar", bindIgnErr(forms.AvatarForm{}), user_setting.AvatarPost)
 		m.Post("/avatar/delete", user_setting.DeleteAvatar)
 		m.Group("/account", func() {
-			m.Combo("").Get(user_setting.Account).Post(bindIgnErr(forms.ChangePasswordForm{}), user_setting.AccountPost)
-			m.Post("/email", bindIgnErr(forms.AddEmailForm{}), user_setting.EmailPost)
-			m.Post("/email/delete", user_setting.DeleteEmail)
-			m.Post("/delete", user_setting.DeleteAccount)
+			m.Get("", user_setting.Account)
 		})
 		m.Group("/appearance", func() {
 			m.Get("", user_setting.Appearance)
