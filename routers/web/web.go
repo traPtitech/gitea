@@ -300,27 +300,6 @@ func registerRoutes(m *web.Route) {
 
 	validation.AddBindingRules()
 
-	linkAccountEnabled := func(ctx *context.Context) {
-		if !setting.Service.EnableOpenIDSignIn && !setting.Service.EnableOpenIDSignUp && !setting.OAuth2.Enabled {
-			ctx.Error(http.StatusForbidden)
-			return
-		}
-	}
-
-	openIDSignInEnabled := func(ctx *context.Context) {
-		if !setting.Service.EnableOpenIDSignIn {
-			ctx.Error(http.StatusForbidden)
-			return
-		}
-	}
-
-	openIDSignUpEnabled := func(ctx *context.Context) {
-		if !setting.Service.EnableOpenIDSignUp {
-			ctx.Error(http.StatusForbidden)
-			return
-		}
-	}
-
 	reqMilestonesDashboardPageEnabled := func(ctx *context.Context) {
 		if !setting.Service.ShowMilestonesDashboardPage {
 			ctx.Error(http.StatusForbidden)

@@ -65,30 +65,13 @@ func ProfilePost(ctx *context.Context) {
 
 	form := web.GetForm(ctx).(*forms.UpdateProfileForm)
 
-	if form.Name != "" {
-		if err := user_service.RenameUser(ctx, ctx.Doer, form.Name); err != nil {
-			switch {
-			case user_model.IsErrUserIsNotLocal(err):
-				ctx.Flash.Error(ctx.Tr("form.username_change_not_local_user"))
-			case user_model.IsErrUserAlreadyExist(err):
-				ctx.Flash.Error(ctx.Tr("form.username_been_taken"))
-			case db.IsErrNameReserved(err):
-				ctx.Flash.Error(ctx.Tr("user.form.name_reserved", form.Name))
-			case db.IsErrNamePatternNotAllowed(err):
-				ctx.Flash.Error(ctx.Tr("user.form.name_pattern_not_allowed", form.Name))
-			case db.IsErrNameCharsNotAllowed(err):
-				ctx.Flash.Error(ctx.Tr("user.form.name_chars_not_allowed", form.Name))
-			default:
-				ctx.ServerError("RenameUser", err)
-				return
-			}
-			ctx.Redirect(setting.AppSubURL + "/user/settings")
-			return
-		}
+	if ctx.Doer.Name != form.Name || ctx.Doer.FullName != form.FullName {
+		ctx.Flash.Error("Changing email, username or fullname is prohibited")
+		ctx.Redirect(setting.AppSubURL + "/user/settings")
+		return
 	}
 
 	opts := &user_service.UpdateOptions{
-		FullName:            optional.Some(form.FullName),
 		KeepEmailPrivate:    optional.Some(form.KeepEmailPrivate),
 		Description:         optional.Some(form.Description),
 		Website:             optional.Some(form.Website),
