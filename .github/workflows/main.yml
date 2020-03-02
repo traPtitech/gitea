@@ -30,7 +30,6 @@ jobs:
           go get github.com/monkeyWie/xgo
           make release
         env:
-          GOPROXY: off
           TAGS: bindata sqlite sqlite_unlock_notify
       - name: Create Release
         id: create_release
