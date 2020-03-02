@@ -24,6 +24,8 @@ jobs:
       - uses: actions/setup-go@v1
         with:
           go-version: 1.13
+      - name: Get xgo
+        run: go get github.com/monkeyWie/xgo
       - name: Make Release
         run: make release
         env:
