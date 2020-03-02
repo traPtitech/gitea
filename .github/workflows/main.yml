@@ -37,8 +37,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ $DRONE_TAG }}
-          release_name: Release ${{ $DRONE_TAG }}
+          tag_name: ${{ env.DRONE_TAG }}
+          release_name: Release ${{ env.DRONE_TAG }}
           draft: false
           prerelease: ${{ github.ref == 'refs/heads/traP' }}
       - name: Release
@@ -46,4 +46,4 @@ jobs:
         env:
           GHR_PATH: dist/release
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REF: ${{ refs/tags/$DRONE_TAG }}
+          GITHUB_REF: ${{ join('refs/tags/', env.DRONE_TAG) }}
