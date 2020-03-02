@@ -2,8 +2,7 @@ name: Push Docker Image
 
 on:
   push:
-    branches:
-      - traP
+    tags:
       - traP-*
 
 jobs:
@@ -11,12 +10,8 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Set DRONE_TAG env (non traP branch)
+      - name: Set DRONE_TAG env
         run: echo ::set-env name=DRONE_TAG::$(echo ${GITHUB_REF:11})
-        if: github.ref != 'refs/heads/traP'
-      - name: Set DRONE_TAG env (traP branch)
-        run: echo ::set-env name=DRONE_TAG::$(echo $GITHUB_SHA)
-        if: github.ref == 'refs/heads/traP'
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
@@ -36,4 +31,3 @@ jobs:
         env:
           GHR_PATH: dist/release
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REF: ${{ join('refs/tags/', env.DRONE_TAG) }}
