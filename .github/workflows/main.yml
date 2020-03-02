@@ -31,16 +31,6 @@ jobs:
           make release
         env:
           TAGS: bindata sqlite sqlite_unlock_notify
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.DRONE_TAG }}
-          release_name: Release ${{ env.DRONE_TAG }}
-          draft: false
-          prerelease: ${{ github.ref == 'refs/heads/traP' }}
       - name: Release
         uses: fnkr/github-action-ghr@bc9a9ecae3c0c6cbc71a96390e344171f963d59d
         env:
