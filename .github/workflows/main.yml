@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set DRONE_TAG env
-        run: echo ::set-env name=DRONE_TAG::$(echo ${GITHUB_REF:11})
+        run: echo ::set-env name=DRONE_TAG::$(echo ${GITHUB_REF:10})
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
@@ -30,4 +30,9 @@ jobs:
         uses: fnkr/github-action-ghr@bc9a9ecae3c0c6cbc71a96390e344171f963d59d
         env:
           GHR_PATH: dist/release
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release binaries
+        uses: fnkr/github-action-ghr@bc9a9ecae3c0c6cbc71a96390e344171f963d59d
+        env:
+          GHR_PATH: dist/binaries
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
