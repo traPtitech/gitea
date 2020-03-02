@@ -24,10 +24,11 @@ jobs:
       - uses: actions/setup-go@v1
         with:
           go-version: 1.13
-      - name: Get xgo
-        run: go get github.com/monkeyWie/xgo
       - name: Make Release
-        run: make release
+        run: |
+          export PATH=${PATH}:`go env GOPATH`/bin
+          go get github.com/monkeyWie/xgo
+          make release
         env:
           GOPROXY: off
           TAGS: bindata sqlite sqlite_unlock_notify
