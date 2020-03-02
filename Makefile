@@ -436,7 +436,7 @@ $(EXECUTABLE): $(GO_SOURCES)
 	GO111MODULE=on $(GO) build -mod=vendor $(GOFLAGS) $(EXTRA_GOFLAGS) -tags '$(TAGS)' -ldflags '-s -w $(LDFLAGS)' -o $@
 
 .PHONY: release
-release: frontend generate release-dirs release-windows release-linux release-darwin release-copy release-compress release-sources release-check
+release: frontend generate release-dirs release-linux release-copy release-compress release-sources release-check
 
 .PHONY: release-dirs
 release-dirs:
