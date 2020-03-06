@@ -9,6 +9,8 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    container:
+      image: techknowlogick/xgo:latest
     steps:
       - name: Set DRONE_TAG env
         run: echo ::set-env name=DRONE_TAG::$(echo ${GITHUB_REF:10})
@@ -17,7 +19,6 @@ jobs:
         with:
           node-version: '12.x'
       - name: Make Release
-        uses: docker://techknowlogick/xgo:latest
         run: |
           export PATH=${PATH}:`go env GOPATH`/bin
           make release
