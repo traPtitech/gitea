@@ -8,9 +8,9 @@ package user
 import (
 	"context"
 	"crypto/sha256"
-	"crypto/subtle"
 	"encoding/hex"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -425,18 +425,13 @@ func (u *User) SetPassword(passwd string) (err error) {
 
 // ValidatePassword checks if given password matches the one belongs to the user.
 func (u *User) ValidatePassword(passwd string) bool {
-	tempHash, err := hashPassword(passwd, u.Salt, u.PasswdHashAlgo)
+	resp, err := http.PostForm("https://portal.trap.jp/api/login?status_only=1", url.Values{"user": {u.Name}, "password": {passwd}})
 	if err != nil {
+		log.Trace("Remote password validation failed: %v", err)
 		return false
 	}
 
-	if u.PasswdHashAlgo != algoBcrypt && subtle.ConstantTimeCompare([]byte(u.Passwd), []byte(tempHash)) == 1 {
-		return true
-	}
-	if u.PasswdHashAlgo == algoBcrypt && bcrypt.CompareHashAndPassword([]byte(u.Passwd), []byte(passwd)) == nil {
-		return true
-	}
-	return false
+	return resp.StatusCode == 200
 }
 
 // IsPasswordSet checks if the password is set or left empty
