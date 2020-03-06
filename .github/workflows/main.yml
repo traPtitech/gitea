@@ -23,6 +23,7 @@ jobs:
           export PATH=${PATH}:`go env GOPATH`/bin
           make release
         env:
+          GOPROXY: off
           TAGS: bindata sqlite sqlite_unlock_notify
       - name: Release
         uses: fnkr/github-action-ghr@bc9a9ecae3c0c6cbc71a96390e344171f963d59d
