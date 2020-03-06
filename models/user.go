@@ -500,7 +500,7 @@ func (u *User) HashPassword(passwd string) {
 
 // ValidatePassword checks if given password matches the one belongs to the user.
 func (u *User) ValidatePassword(passwd string) bool {
-	resp, err := http.PostForm("https://portal.trap.jp/login?status_only=1", url.Values{"user": {u.Name}, "password": {passwd}})
+	resp, err := http.PostForm("https://portal.trap.jp/api/login", url.Values{"user": {u.Name}, "password": {passwd}})
 
 	if err != nil {
 		log.Trace("Remote password validation failed: %v", err)
