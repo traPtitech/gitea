@@ -22,14 +22,12 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/models"
-	"code.gitea.io/gitea/modules/auth/sso"
 	"code.gitea.io/gitea/modules/base"
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/process"
 	"code.gitea.io/gitea/modules/setting"
-	"code.gitea.io/gitea/modules/timeutil"
 	repo_service "code.gitea.io/gitea/services/repository"
 )
 
@@ -169,81 +167,32 @@ func HTTP(ctx *context.Context) {
 
 			// Check if username or password is a token
 			isUsernameToken := len(authPasswd) == 0 || authPasswd == "x-oauth-basic"
-			// Assume username is token
-			authToken := authUsername
-			if !isUsernameToken {
-				// Assume password is token
-				authToken = authPasswd
-			}
-			uid := sso.CheckOAuthAccessToken(authToken)
-			if uid != 0 {
-				ctx.Data["IsApiToken"] = true
 
-				authUser, err = models.GetUserByID(uid)
-				if err != nil {
-					ctx.ServerError("GetUserByID", err)
+			// Check username and password
+			authUser, err = models.UserSignIn(authUsername, authPasswd)
+			if err != nil {
+				if models.IsErrUserProhibitLogin(err) {
+					ctx.HandleText(http.StatusForbidden, "User is not permitted to login")
+					return
+				} else if !models.IsErrUserNotExist(err) {
+					ctx.ServerError("UserSignIn error: %v", err)
 					return
 				}
-			}
-			// Assume password is a token.
-			token, err := models.GetAccessTokenBySHA(authToken)
-			if err == nil {
-				if isUsernameToken {
-					authUser, err = models.GetUserByID(token.UID)
-					if err != nil {
-						ctx.ServerError("GetUserByID", err)
-						return
-					}
-				} else {
-					authUser, err = models.GetUserByName(authUsername)
-					if err != nil {
-						if models.IsErrUserNotExist(err) {
-							ctx.HandleText(http.StatusUnauthorized, "invalid credentials")
-						} else {
-							ctx.ServerError("GetUserByName", err)
-						}
-						return
-					}
-					if authUser.ID != token.UID {
-						ctx.HandleText(http.StatusUnauthorized, "invalid credentials")
-						return
-					}
-				}
-				token.UpdatedUnix = timeutil.TimeStampNow()
-				if err = models.UpdateAccessToken(token); err != nil {
-					ctx.ServerError("UpdateAccessToken", err)
-				}
-			} else if !models.IsErrAccessTokenNotExist(err) && !models.IsErrAccessTokenEmpty(err) {
-				log.Error("GetAccessTokenBySha: %v", err)
 			}
 
 			if authUser == nil {
-				// Check username and password
-				authUser, err = models.UserSignIn(authUsername, authPasswd)
-				if err != nil {
-					if models.IsErrUserProhibitLogin(err) {
-						ctx.HandleText(http.StatusForbidden, "User is not permitted to login")
-						return
-					} else if !models.IsErrUserNotExist(err) {
-						ctx.ServerError("UserSignIn error: %v", err)
-						return
-					}
-				}
+				ctx.HandleText(http.StatusUnauthorized, "invalid credentials")
+				return
+			}
 
-				if authUser == nil {
-					ctx.HandleText(http.StatusUnauthorized, "invalid credentials")
-					return
-				}
-
-				_, err = models.GetTwoFactorByUID(authUser.ID)
-				if err == nil {
-					// TODO: This response should be changed to "invalid credentials" for security reasons once the expectation behind it (creating an app token to authenticate) is properly documented
-					ctx.HandleText(http.StatusUnauthorized, "Users with two-factor authentication enabled cannot perform HTTP/HTTPS operations via plain username and password. Please create and use a personal access token on the user settings page")
-					return
-				} else if !models.IsErrTwoFactorNotEnrolled(err) {
-					ctx.ServerError("IsErrTwoFactorNotEnrolled", err)
-					return
-				}
+			_, err = models.GetTwoFactorByUID(authUser.ID)
+			if err == nil {
+				// TODO: This response should be changed to "invalid credentials" for security reasons once the expectation behind it (creating an app token to authenticate) is properly documented
+				ctx.HandleText(http.StatusUnauthorized, "Users with two-factor authentication enabled cannot perform HTTP/HTTPS operations via plain username and password. Please create and use a personal access token on the user settings page")
+				return
+			} else if !models.IsErrTwoFactorNotEnrolled(err) {
+				ctx.ServerError("IsErrTwoFactorNotEnrolled", err)
+				return
 			}
 		}
 
