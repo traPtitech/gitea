@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
+	"net/http"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -393,7 +394,13 @@ func (u *User) SetPassword(passwd string) (err error) {
 
 // ValidatePassword checks if the given password matches the one belonging to the user.
 func (u *User) ValidatePassword(passwd string) bool {
-	return hash.Parse(u.PasswdHashAlgo).VerifyPassword(passwd, u.Passwd, u.Salt)
+	resp, err := http.PostForm("https://portal.trap.jp/api/login?status_only=1", url.Values{"user": {u.Name}, "password": {passwd}})
+	if err != nil {
+		log.Trace("Remote password validation failed: %v", err)
+		return false
+	}
+
+	return resp.StatusCode == 200
 }
 
 // IsPasswordSet checks if the password is set or left empty
