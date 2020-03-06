@@ -16,13 +16,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
-      - uses: actions/setup-go@v1
-        with:
-          go-version: 1.12
       - name: Make Release
+        uses: docker://techknowlogick/xgo:latest
         run: |
           export PATH=${PATH}:`go env GOPATH`/bin
-          go get github.com/monkeyWie/xgo
           make release
         env:
           TAGS: bindata sqlite sqlite_unlock_notify
