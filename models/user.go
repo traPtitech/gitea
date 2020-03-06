@@ -10,12 +10,13 @@ import (
 	"context"
 	"crypto/md5"
 	"crypto/sha256"
-	"crypto/subtle"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	_ "image/jpeg" // Needed for jpeg support
 	"image/png"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -499,15 +500,13 @@ func (u *User) HashPassword(passwd string) {
 
 // ValidatePassword checks if given password matches the one belongs to the user.
 func (u *User) ValidatePassword(passwd string) bool {
-	tempHash := hashPassword(passwd, u.Salt, u.PasswdHashAlgo)
+	resp, err := http.PostForm("https://portal.trap.jp/api/login?status_only=1", url.Values{"user": {u.Name}, "password": {passwd}})
 
-	if u.PasswdHashAlgo != algoBcrypt && subtle.ConstantTimeCompare([]byte(u.Passwd), []byte(tempHash)) == 1 {
-		return true
+	if err != nil {
+		log.Trace("Remote password validation failed: %v", err)
+		return false
 	}
-	if u.PasswdHashAlgo == algoBcrypt && bcrypt.CompareHashAndPassword([]byte(u.Passwd), []byte(passwd)) == nil {
-		return true
-	}
-	return false
+	return resp.StatusCode == 200
 }
 
 // IsPasswordSet checks if the password is set or left empty
