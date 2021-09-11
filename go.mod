@@ -18,6 +18,7 @@ require (
 	github.com/caddyserver/certmagic v0.15.4
 	github.com/chi-middleware/proxy v1.1.1
 	github.com/denisenkom/go-mssqldb v0.12.0
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/djherbis/buffer v1.2.0
 	github.com/djherbis/nio/v3 v3.0.1
 	github.com/duo-labs/webauthn v0.0.0-20220122034320-81aea484c951
