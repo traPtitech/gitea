@@ -11,8 +11,6 @@ import (
 	_ "image/jpeg" // Needed for jpeg support
 	"time"
 
-	_ "image/jpeg" // Needed for jpeg support
-
 	activities_model "code.gitea.io/gitea/models/activities"
 	asymkey_model "code.gitea.io/gitea/models/asymkey"
 	auth_model "code.gitea.io/gitea/models/auth"
