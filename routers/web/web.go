@@ -247,10 +247,10 @@ func RegisterRoutes(m *web.Route) {
 
 	m.Group("/user/settings", func() {
 		m.Get("", userSetting.Profile)
-		m.Post("", bindIgnErr(auth.UpdateProfileForm{}), userSetting.ProfilePost)
+		m.Post("", bindIgnErr(forms.UpdateProfileForm{}), userSetting.ProfilePost)
 		m.Group("/account", func() {
 			m.Get("", userSetting.Account)
-			m.Post("/theme", bindIgnErr(auth.UpdateThemeForm{}), userSetting.UpdateUIThemePost)
+			m.Post("/theme", bindIgnErr(forms.UpdateThemeForm{}), userSetting.UpdateUIThemePost)
 		})
 		m.Group("/applications/oauth2", func() {
 			m.Get("/{id}", userSetting.OAuth2ApplicationShow)
