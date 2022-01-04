@@ -50,14 +50,16 @@ func Home(ctx *context.Context) {
 	}
 
 	// Check auto-login.
-	if ctx.GetSiteCookie(setting.CookieRememberName) != "" {
-		ctx.Redirect(setting.AppSubURL + "/user/login")
-		return
-	}
 
-	ctx.Data["PageIsHome"] = true
-	ctx.Data["IsRepoIndexerEnabled"] = setting.Indexer.RepoIndexerEnabled
-	ctx.HTML(http.StatusOK, tplHome)
+	// uname := ctx.GetSiteCookie(setting.CookieUserName)
+	// if len(uname) != 0 {
+	ctx.Redirect(setting.AppSubURL + "/user/login")
+	return
+	// }
+
+	// ctx.Data["PageIsHome"] = true
+	// ctx.Data["IsRepoIndexerEnabled"] = setting.Indexer.RepoIndexerEnabled
+	// ctx.HTML(http.StatusOK, tplHome)
 }
 
 // HomeSitemap renders the main sitemap
