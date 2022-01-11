@@ -68,7 +68,7 @@ func getUserFromTrapToken(tokenString string) *user.User {
 	u.FullName = data["firstName"].(string) + " " + data["lastName"].(string)
 	u.SetLastLogin()
 
-	if err := user.UpdateUser(u); err != nil {
+	if err := user.UpdateUser(u, true); err != nil {
 		log.ErrorWithSkip(3, "Failed to update user: %v", err)
 		return nil
 	}
