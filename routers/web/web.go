@@ -245,7 +245,7 @@ func RegisterRoutes(m *web.Route) {
 
 	// ***** START: User *****
 	m.Group("/user", func() {
-		m.Get("/login", user.TrapSignIn)
+		m.Get("/login", auth.TrapSignIn)
 	}, reqSignOut)
 
 	m.Any("/user/events", events.Events)
