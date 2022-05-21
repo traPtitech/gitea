@@ -11,6 +11,7 @@ import (
 
 	"code.gitea.io/gitea/models"
 	repo_model "code.gitea.io/gitea/models/repo"
+	"code.gitea.io/gitea/models/trap"
 	user_model "code.gitea.io/gitea/models/user"
 	git "code.gitea.io/gitea/modules/git"
 	"code.gitea.io/gitea/modules/json"
@@ -307,7 +308,7 @@ func (a *actionNotifier) NotifyPushCommits(pusher *user_model.User, repo *repo_m
 
 	opType := models.ActionCommitRepo
 
-	models.ShowcasePushEvent(repo.MustOwner().Name, repo.Name, git.RefEndName(opts.RefFullName))
+	trap.ShowcasePushEvent(repo.MustOwner().Name, repo.Name, git.RefEndName(opts.RefFullName))
 
 	// Check it's tag push or branch.
 	if opts.IsTag() {

@@ -1,4 +1,4 @@
-package asymkey
+package trap
 
 import (
 	"net/http"
