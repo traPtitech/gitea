@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"code.gitea.io/gitea/models"
 	"code.gitea.io/gitea/models/auth"
 	"code.gitea.io/gitea/models/db"
 	"code.gitea.io/gitea/models/perm"
@@ -134,7 +133,7 @@ func AddPublicKey(ownerID int64, name, content string, authSourceID int64) (*Pub
 	if err = addKey(sess, key); err != nil {
 		return nil, fmt.Errorf("addKey: %v", err)
 	}
-	models.ShowcaseKeyUpdateEvent(ownerID)
+	ShowcaseKeyUpdateEvent(ownerID)
 
 	return key, committer.Commit()
 }
