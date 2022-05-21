@@ -1,10 +1,10 @@
-package user
+package auth
 
 import (
 	"fmt"
 	"net/url"
 
-	"code.gitea.io/gitea/models"
+	"code.gitea.io/gitea/models/user"
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
@@ -26,7 +26,7 @@ func TrapSignIn(ctx *context.Context) {
 	}
 }
 
-func getUserFromTrapToken(tokenString string) *models.User {
+func getUserFromTrapToken(tokenString string) *user.User {
 	if tokenString == "" {
 		log.Warn("No token")
 		return nil
@@ -49,15 +49,15 @@ func getUserFromTrapToken(tokenString string) *models.User {
 	data := token.Claims.(jwt.MapClaims)
 	log.Debug("traP token accepted: %s", data["id"])
 
-	u, _ := models.GetUserByName(data["id"].(string))
+	u, _ := user.GetUserByName(data["id"].(string))
 	if u == nil {
-		u = &models.User{
+		u = &user.User{
 			Name:     data["id"].(string),
 			Email:    data["email"].(string),
 			Passwd:   "",
 			IsActive: true,
 		}
-		if err := models.CreateUser(u); err != nil {
+		if err := user.CreateUser(u); err != nil {
 			log.ErrorWithSkip(3, "Failed to create account: %v", err)
 			return nil
 		}
@@ -68,7 +68,7 @@ func getUserFromTrapToken(tokenString string) *models.User {
 	u.FullName = data["firstName"].(string) + " " + data["lastName"].(string)
 	u.SetLastLogin()
 
-	if err := models.UpdateUser(u, true); err != nil {
+	if err := user.UpdateUser(u, true); err != nil {
 		log.ErrorWithSkip(3, "Failed to update user: %v", err)
 		return nil
 	}
