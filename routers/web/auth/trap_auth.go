@@ -9,7 +9,7 @@ import (
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TrapSignIn(ctx *context.Context) {
@@ -18,7 +18,7 @@ func TrapSignIn(ctx *context.Context) {
 		return
 	}
 
-	token := ctx.GetCookie("traP_token")
+	token := ctx.GetSiteCookie("traP_token")
 	if user := getUserFromTrapToken(ctx, token); user != nil {
 		handleSignIn(ctx, user, false)
 	} else {
