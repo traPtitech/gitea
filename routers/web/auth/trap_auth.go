@@ -11,7 +11,7 @@ import (
 	"code.gitea.io/gitea/services/context"
 	user_service "code.gitea.io/gitea/services/user"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func TrapSignIn(ctx *context.Context) {
