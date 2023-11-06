@@ -866,7 +866,7 @@ endif
 
 .PHONY: release-copy
 release-copy: | $(DIST_DIRS)
-	cd $(DIST); for file in `find /build -type f -name "*"`; do cp $${file} ./release/; done;
+	cd $(DIST); for file in `find . -type f -name "*"`; do cp $${file} ./release/; done;
 
 .PHONY: release-check
 release-check: | $(DIST_DIRS)
