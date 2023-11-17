@@ -12,13 +12,13 @@ jobs:
     steps:
       - name: Set DRONE_TAG env
         run: echo "DRONE_TAG=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '14.x'
-      - uses: actions/setup-go@v1
+          node-version-file: 'package.json'
+      - uses: actions/setup-go@v4
         with:
-          go-version: 1.16
+          go-version-file: 'go.mod'
       - name: Make Release
         run: |
           export PATH=${PATH}:`go env GOPATH`/bin
