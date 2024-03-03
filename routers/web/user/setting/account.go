@@ -107,7 +107,6 @@ func EmailPost(ctx *context.Context) {
 		return
 	}
 
-	form := web.GetForm(ctx).(*forms.AddEmailForm)
 	ctx.Data["Title"] = ctx.Tr("settings")
 	ctx.Data["PageIsSettingsAccount"] = true
 	ctx.Data["Email"] = ctx.Doer.Email
@@ -202,36 +201,6 @@ func EmailPost(ctx *context.Context) {
 		ctx.HTML(http.StatusOK, tplSettingsAccount)
 		return
 	}
-
-	if err := user.AddEmailAddresses(ctx, ctx.Doer, []string{form.Email}); err != nil {
-		if user_model.IsErrEmailAlreadyUsed(err) {
-			loadAccountData(ctx)
-
-			ctx.RenderWithErr(ctx.Tr("form.email_been_used"), tplSettingsAccount, &form)
-		} else if user_model.IsErrEmailCharIsNotSupported(err) || user_model.IsErrEmailInvalid(err) {
-			loadAccountData(ctx)
-
-			ctx.RenderWithErr(ctx.Tr("form.email_invalid"), tplSettingsAccount, &form)
-		} else {
-			ctx.ServerError("AddEmailAddresses", err)
-		}
-		return
-	}
-
-	// Send confirmation email
-	if setting.Service.RegisterEmailConfirm {
-		mailer.SendActivateEmailMail(ctx.Doer, form.Email)
-		if err := ctx.Cache.Put("MailResendLimit_"+ctx.Doer.LowerName, ctx.Doer.LowerName, 180); err != nil {
-			log.Error("Set cache(MailResendLimit) fail: %v", err)
-		}
-
-		ctx.Flash.Info(ctx.Tr("settings.add_email_confirmation_sent", form.Email, timeutil.MinutesToFriendly(setting.Service.ActiveCodeLives, ctx.Locale)))
-	} else {
-		ctx.Flash.Success(ctx.Tr("settings.add_email_success"))
-	}
-
-	log.Trace("Email address added: %s", form.Email)
-	ctx.Redirect(setting.AppSubURL + "/user/settings/account")
 }
 
 // DeleteEmail response for delete user's email
