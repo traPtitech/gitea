@@ -500,6 +500,10 @@ func registerRoutes(m *web.Route) {
 	m.Group("/user/settings", func() {
 		m.Get("", user_setting.Profile)
 		m.Post("", web.Bind(forms.UpdateProfileForm{}), user_setting.ProfilePost)
+		m.Group("/account", func() {
+			m.Get("", user_setting.Account)
+			m.Post("/email", web.Bind(forms.AddEmailForm{}), user_setting.EmailPost)
+		})
 		m.Group("/appearance", func() {
 			m.Get("", user_setting.Appearance)
 			m.Post("/language", web.Bind(forms.UpdateLanguageForm{}), user_setting.UpdateUserLang)
