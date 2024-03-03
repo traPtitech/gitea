@@ -16,14 +16,12 @@ import (
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/optional"
 	"code.gitea.io/gitea/modules/setting"
-	"code.gitea.io/gitea/modules/timeutil"
 	"code.gitea.io/gitea/modules/web"
 	"code.gitea.io/gitea/services/auth"
 	"code.gitea.io/gitea/services/auth/source/db"
 	"code.gitea.io/gitea/services/auth/source/smtp"
 	"code.gitea.io/gitea/services/context"
 	"code.gitea.io/gitea/services/forms"
-	"code.gitea.io/gitea/services/mailer"
 	"code.gitea.io/gitea/services/user"
 )
 
@@ -89,68 +87,9 @@ func AccountPost(ctx *context.Context) {
 
 // EmailPost response for change user's email
 func EmailPost(ctx *context.Context) {
-	form := web.GetForm(ctx).(*forms.AddEmailForm)
 	ctx.Data["Title"] = ctx.Tr("settings")
 	ctx.Data["PageIsSettingsAccount"] = true
 
-	// Make email address primary.
-	if ctx.FormString("_method") == "PRIMARY" {
-		if err := user_model.MakeActiveEmailPrimary(ctx, ctx.FormInt64("id")); err != nil {
-			ctx.ServerError("MakeEmailPrimary", err)
-			return
-		}
-
-		log.Trace("Email made primary: %s", ctx.Doer.Name)
-		ctx.Redirect(setting.AppSubURL + "/user/settings/account")
-		return
-	}
-	// Send activation Email
-	if ctx.FormString("_method") == "SENDACTIVATION" {
-		var address string
-		if ctx.Cache.IsExist("MailResendLimit_" + ctx.Doer.LowerName) {
-			log.Error("Send activation: activation still pending")
-			ctx.Redirect(setting.AppSubURL + "/user/settings/account")
-			return
-		}
-
-		id := ctx.FormInt64("id")
-		email, err := user_model.GetEmailAddressByID(ctx, ctx.Doer.ID, id)
-		if err != nil {
-			log.Error("GetEmailAddressByID(%d,%d) error: %v", ctx.Doer.ID, id, err)
-			ctx.Redirect(setting.AppSubURL + "/user/settings/account")
-			return
-		}
-		if email == nil {
-			log.Warn("Send activation failed: EmailAddress[%d] not found for user: %-v", id, ctx.Doer)
-			ctx.Redirect(setting.AppSubURL + "/user/settings/account")
-			return
-		}
-		if email.IsActivated {
-			log.Debug("Send activation failed: email %s is already activated for user: %-v", email.Email, ctx.Doer)
-			ctx.Redirect(setting.AppSubURL + "/user/settings/account")
-			return
-		}
-		if email.IsPrimary {
-			if ctx.Doer.IsActive && !setting.Service.RegisterEmailConfirm {
-				log.Debug("Send activation failed: email %s is already activated for user: %-v", email.Email, ctx.Doer)
-				ctx.Redirect(setting.AppSubURL + "/user/settings/account")
-				return
-			}
-			// Only fired when the primary email is inactive (Wrong state)
-			mailer.SendActivateAccountMail(ctx.Locale, ctx.Doer)
-		} else {
-			mailer.SendActivateEmailMail(ctx.Doer, email.Email)
-		}
-		address = email.Email
-
-		if err := ctx.Cache.Put("MailResendLimit_"+ctx.Doer.LowerName, ctx.Doer.LowerName, 180); err != nil {
-			log.Error("Set cache(MailResendLimit) fail: %v", err)
-		}
-
-		ctx.Flash.Info(ctx.Tr("settings.add_email_confirmation_sent", address, timeutil.MinutesToFriendly(setting.Service.ActiveCodeLives, ctx.Locale)))
-		ctx.Redirect(setting.AppSubURL + "/user/settings/account")
-		return
-	}
 	// Set Email Notification Preference
 	if ctx.FormString("_method") == "NOTIFICATION" {
 		preference := ctx.FormString("preference")
@@ -182,36 +121,6 @@ func EmailPost(ctx *context.Context) {
 		ctx.HTML(http.StatusOK, tplSettingsAccount)
 		return
 	}
-
-	if err := user.AddEmailAddresses(ctx, ctx.Doer, []string{form.Email}); err != nil {
-		if user_model.IsErrEmailAlreadyUsed(err) {
-			loadAccountData(ctx)
-
-			ctx.RenderWithErr(ctx.Tr("form.email_been_used"), tplSettingsAccount, &form)
-		} else if user_model.IsErrEmailCharIsNotSupported(err) || user_model.IsErrEmailInvalid(err) {
-			loadAccountData(ctx)
-
-			ctx.RenderWithErr(ctx.Tr("form.email_invalid"), tplSettingsAccount, &form)
-		} else {
-			ctx.ServerError("AddEmailAddresses", err)
-		}
-		return
-	}
-
-	// Send confirmation email
-	if setting.Service.RegisterEmailConfirm {
-		mailer.SendActivateEmailMail(ctx.Doer, form.Email)
-		if err := ctx.Cache.Put("MailResendLimit_"+ctx.Doer.LowerName, ctx.Doer.LowerName, 180); err != nil {
-			log.Error("Set cache(MailResendLimit) fail: %v", err)
-		}
-
-		ctx.Flash.Info(ctx.Tr("settings.add_email_confirmation_sent", form.Email, timeutil.MinutesToFriendly(setting.Service.ActiveCodeLives, ctx.Locale)))
-	} else {
-		ctx.Flash.Success(ctx.Tr("settings.add_email_success"))
-	}
-
-	log.Trace("Email address added: %s", form.Email)
-	ctx.Redirect(setting.AppSubURL + "/user/settings/account")
 }
 
 // DeleteEmail response for delete user's email
