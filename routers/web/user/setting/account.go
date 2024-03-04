@@ -16,11 +16,9 @@ import (
 	"code.gitea.io/gitea/modules/context"
 	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/setting"
-	"code.gitea.io/gitea/modules/timeutil"
 	"code.gitea.io/gitea/modules/web"
 	"code.gitea.io/gitea/services/auth"
 	"code.gitea.io/gitea/services/forms"
-	"code.gitea.io/gitea/services/mailer"
 	"code.gitea.io/gitea/services/user"
 )
 
@@ -87,7 +85,6 @@ func AccountPost(ctx *context.Context) {
 
 // EmailPost response for change user's email
 func EmailPost(ctx *context.Context) {
-	form := web.GetForm(ctx).(*forms.AddEmailForm)
 	ctx.Data["Title"] = ctx.Tr("settings")
 	ctx.Data["PageIsSettingsAccount"] = true
 
@@ -119,44 +116,6 @@ func EmailPost(ctx *context.Context) {
 		ctx.HTML(http.StatusOK, tplSettingsAccount)
 		return
 	}
-
-	email := &user_model.EmailAddress{
-		UID:         ctx.Doer.ID,
-		Email:       form.Email,
-		IsActivated: !setting.Service.RegisterEmailConfirm,
-	}
-	if err := user_model.AddEmailAddress(ctx, email); err != nil {
-		if user_model.IsErrEmailAlreadyUsed(err) {
-			loadAccountData(ctx)
-
-			ctx.RenderWithErr(ctx.Tr("form.email_been_used"), tplSettingsAccount, &form)
-			return
-		} else if user_model.IsErrEmailCharIsNotSupported(err) ||
-			user_model.IsErrEmailInvalid(err) {
-			loadAccountData(ctx)
-
-			ctx.RenderWithErr(ctx.Tr("form.email_invalid"), tplSettingsAccount, &form)
-			return
-		}
-		ctx.ServerError("AddEmailAddress", err)
-		return
-	}
-
-	// Send confirmation email
-	if setting.Service.RegisterEmailConfirm {
-		mailer.SendActivateEmailMail(ctx.Doer, email)
-		if setting.CacheService.Enabled {
-			if err := ctx.Cache.Put("MailResendLimit_"+ctx.Doer.LowerName, ctx.Doer.LowerName, 180); err != nil {
-				log.Error("Set cache(MailResendLimit) fail: %v", err)
-			}
-		}
-		ctx.Flash.Info(ctx.Tr("settings.add_email_confirmation_sent", email.Email, timeutil.MinutesToFriendly(setting.Service.ActiveCodeLives, ctx.Locale)))
-	} else {
-		ctx.Flash.Success(ctx.Tr("settings.add_email_success"))
-	}
-
-	log.Trace("Email address added: %s", email.Email)
-	ctx.Redirect(setting.AppSubURL + "/user/settings/account")
 }
 
 // DeleteEmail response for delete user's email
