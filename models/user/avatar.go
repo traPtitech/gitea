@@ -64,6 +64,9 @@ func (u *User) AvatarLinkWithSize(ctx context.Context, size int) string {
 
 	// return traQ avatar if u is individual
 	if !u.IsOrganization() {
+		if u.Name == "gitea-actions" {
+			return "/assets/img/gitea-actions-icon.png"
+		}
 		return "https://q.trap.jp/api/v3/public/icon/" + u.Name
 	}
 
