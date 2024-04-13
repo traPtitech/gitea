@@ -6,8 +6,9 @@ package user
 import (
 	"context"
 	"fmt"
-	_ "image/jpeg" // Needed for jpeg support
 	"time"
+
+	_ "image/jpeg" // Needed for jpeg support
 
 	actions_model "code.gitea.io/gitea/models/actions"
 	activities_model "code.gitea.io/gitea/models/activities"
