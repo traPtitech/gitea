@@ -104,7 +104,17 @@ func migrateAttachments(ctx context.Context, dstStorage storage.ObjectStorage) e
 }
 
 func migrateLFS(ctx context.Context, dstStorage storage.ObjectStorage) error {
+	count, err := db.Count[git_model.LFSMetaObject](ctx, db.ListOptionsAll)
+	if err != nil {
+		return err
+	}
+	var i int64 = 0
 	return db.Iterate(ctx, nil, func(ctx context.Context, mo *git_model.LFSMetaObject) error {
+		// log progress every 5%
+		if i%(count/20) == 0 {
+			log.Info("Copied %d/%d LFS objects (%.1f%%)", i, count, float64(i)/float64(count)*100)
+		}
+		i++
 		_, err := storage.Copy(dstStorage, mo.RelativePath(), storage.LFS, mo.RelativePath())
 		return err
 	})
