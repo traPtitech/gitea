@@ -25,7 +25,7 @@ var globalVars = sync.OnceValue(func() *globalVarsStruct {
 	return &globalVarsStruct{
 		externalTrackerRegex:   regexp.MustCompile(`({?)(?:user|repo|index)+?(}?)`),
 		validUsernamePattern:   regexp.MustCompile(`^[\da-zA-Z][-.\w]*$`),
-		invalidUsernamePattern: regexp.MustCompile(`[-._]{2,}|[-._]$`), // No consecutive or trailing non-alphanumeric chars
+		invalidUsernamePattern: regexp.MustCompile(`[.]{2,}|[-._]$`), // No consecutive or trailing non-alphanumeric chars
 	}
 })
 
