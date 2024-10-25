@@ -73,7 +73,6 @@ var (
 		TypeIssues,
 		TypePullRequests,
 		TypeReleases,
-		TypeWiki,
 		TypeProjects,
 		TypePackages,
 		TypeActions,
