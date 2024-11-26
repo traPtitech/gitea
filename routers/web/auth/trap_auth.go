@@ -48,13 +48,15 @@ func getUserFromTrapToken(ctx *context.Context, tokenString string) *user.User {
 	}
 
 	data := token.Claims.(jwt.MapClaims)
-	log.Debug("traP token accepted: %s", data["id"])
+	id := data["id"].(string)
+	email := data["email"].(string)
+	log.Debug("traP token accepted: %s", id)
 
-	u, _ := user.GetUserByName(ctx, data["id"].(string))
+	u, _ := user.GetUserByName(ctx, id)
 	if u == nil {
 		u = &user.User{
-			Name:     data["id"].(string),
-			Email:    data["email"].(string),
+			Name:     id,
+			Email:    email,
 			Passwd:   "",
 			IsActive: true,
 		}
@@ -70,6 +72,11 @@ func getUserFromTrapToken(ctx *context.Context, tokenString string) *user.User {
 	}
 	if err := user_service.UpdateUser(ctx, u, &opts); err != nil {
 		log.ErrorWithSkip(3, "Failed to update user: %v", err)
+		return nil
+	}
+
+	if err := user_service.ReplacePrimaryEmailAddress(ctx, u, email); err != nil {
+		log.ErrorWithSkip(3, "Failed to update email: %v", err)
 		return nil
 	}
 
