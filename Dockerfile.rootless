@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Build frontend on the native platform to avoid QEMU-related issues with nodejs ecosystem
-FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.26-alpine3.23 AS frontend-build
+FROM --platform=$BUILDPLATFORM docker.io/library/golang:1.26-alpine3.23@sha256:f23e8b227fb4493eabe03bede4d5a32d04092da71962f1fb79b5f7d1e6c2a17f AS frontend-build
 RUN apk --no-cache add build-base git nodejs pnpm
 WORKDIR /src
 COPY package.json pnpm-lock.yaml .npmrc ./
@@ -9,7 +9,7 @@ COPY --exclude=.git/ . .
 RUN make frontend
 
 # Build backend for each target platform
-FROM docker.io/library/golang:1.26-alpine3.23 AS build-env
+FROM docker.io/library/golang:1.26-alpine3.23@sha256:f23e8b227fb4493eabe03bede4d5a32d04092da71962f1fb79b5f7d1e6c2a17f AS build-env
 
 ARG GITEA_VERSION
 ARG TAGS="sqlite sqlite_unlock_notify"
@@ -39,7 +39,7 @@ COPY docker/rootless /tmp/local
 RUN chmod 755 /tmp/local/usr/local/bin/* \
               /go/src/code.gitea.io/gitea/gitea
 
-FROM docker.io/library/alpine:3.23 AS gitea-rootless
+FROM docker.io/library/alpine:3.23@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11 AS gitea-rootless
 
 EXPOSE 2222 3000
 

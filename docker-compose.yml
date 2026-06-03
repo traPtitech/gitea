@@ -20,7 +20,7 @@ services:
     restart: always
 
   mysql:
-    image: mariadb:10.3.9
+    image: mariadb:10.3.9@sha256:9f62c3c2f9219988299e470f93cf78509d3607aa813683426f91e2091e8c8111
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
